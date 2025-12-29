@@ -137,7 +137,6 @@ DEBUG=True
 
 - Start chatting with the AI assistant
 
-assistant
 
 ## 🧠 Features
 
