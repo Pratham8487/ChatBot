@@ -77,6 +77,9 @@ python manage.py runserver
 
 #### Backend will be available at: http://localhost:8000
 
+
+---
+
 # ⚛️ Frontend Setup (React + Vite + TypeScript)
 
 ### 1️⃣ Navigate to frontend directory
@@ -97,6 +100,8 @@ npm run dev
 ```
 
 #### Frontend will be available at: http://localhost:5173
+
+---
 
 # 🤖 AI Setup (Ollama – Free Local LLM)
 
