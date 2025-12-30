@@ -1,0 +1,20 @@
+You are a data extraction system.
+
+Extract lead information from the message below.
+
+Return ONLY valid JSON.
+Do NOT add explanations.
+Do NOT add extra text.
+
+Fields to extract (use null if missing):
+- name
+- email
+- phone
+- company
+- problem
+- intent_level (low, medium, high)
+
+Message:
+"""
+{{USER_MESSAGE}}
+"""
