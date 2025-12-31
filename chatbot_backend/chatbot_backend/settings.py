@@ -132,6 +132,16 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 # AI Service Settings
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/generate")
+LLM_MODEL_NAME = os.getenv("LLM_MODEL_NAME", "phi3:mini")
+REMOTE_SERVER_IP_OLLAMA = os.getenv("REMOTE_SERVER_IP_OLLAMA", "")
+LLM_LOCAL_API_BASE = os.getenv("LLM_LOCAL_API_BASE", "http://localhost:11434")
+LLM_API_BASE_URL = os.getenv("LLM_API_BASE_URL", "http://localhost:11434")
+LLM_MODEL_OPEN_AI = os.getenv("LLM_MODEL_OPEN_AI", "gpt-4")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+
+# Prompts Directory
+PROMPTS_DIR = os.path.join(BASE_DIR, "utils", "Prompts")
+
 
 
 # Basic logging configuration to ensure module loggers output to console

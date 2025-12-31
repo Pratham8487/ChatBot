@@ -1,6 +1,15 @@
 ERROR_MESSAGES = {
     # N8N
     "N8N_BASE_URL_MISSING": "N8N base URL is not set in Django settings.",
+    
+    "INVALID_JSON": "Invalid JSON body. Ensure special characters (quotes, newlines, backslashes) are properly escaped.",
+    "LLM_INTERNAL_ERROR": "Internal LLM error",
+    "MISSING_MESSAGE": "Message is required",
+    "EMPTY_MESSAGE": "Message cannot be empty or whitespace only",
+    
+    # AI services
+    "MISSING_DATA": "No data provided for AI processing",
+    "INVALID_ENGINE": "Invalid engine specified",
 
     # Repository
     "REPOSITORY_ID_MISSING": "Missing repository ID in the input payload.",

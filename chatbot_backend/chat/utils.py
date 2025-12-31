@@ -96,7 +96,7 @@ def load_prompt(prompt: str, stakeholder_name: str, file_name: str) -> str:
     a file-based or dynamically generated prompt if not found.
     """
 
-    base_dir = os.path.join(os.path.dirname(__file__), 'Prompts', prompt.capitalize())
+    base_dir = os.path.join(settings.PROMPTS_DIR, prompt.capitalize())
 
     # ---Try stakeholder-specific prompt ---
     stakeholder_prompt_path = os.path.join(base_dir, f"{stakeholder_name.lower()}.txt")
@@ -124,7 +124,8 @@ def load_prompt(prompt: str, stakeholder_name: str, file_name: str) -> str:
         f"Attempted paths: {stakeholder_prompt_path}, {fallback_prompt_path}"
     )
 
-    return generate_dynamic_prompt(prompt, stakeholder_name)
+    # return generate_dynamic_prompt(prompt, stakeholder_name)
+    return "You are a business lead generation assistant."
 
 
 def generate_llm_response(
