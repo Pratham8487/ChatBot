@@ -24,7 +24,7 @@ The backend handles AI requests securely, while the frontend provides a modern c
 ### AI Integration
 
 - Ollama (Local LLM – free)
-- Easily extendable to OpenAI / other providers
+- Easily extendable to OpenAI / Gemini / Grok / other providers
 
 ---
 
