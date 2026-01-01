@@ -109,15 +109,24 @@ npm run dev
 #### Download from: https://ollama.com
 
 ### 2️⃣ Pull an AI model
-
+- High capacity model
 ```bash
 ollama pull llama3
+```
+- Low capacity model
+```bash
+ollama pull phi3:mini
 ```
 
 ### 3️⃣ Run the model
 ```bash
 ollama run llama3
 ```
+or
+```bash
+ollama run phi3:mini
+```
+
 #### Ollama runs locally and exposes an API at: http://localhost:11434
 The Django backend communicates with Ollama through this endpoint.
 
