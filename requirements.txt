@@ -10,28 +10,22 @@ sqlparse==0.5.5
 tzdata==2025.3
 urllib3==2.6.2
 
-# -----------------------------
+# Database Drivers (CRITICAL - must be installed for DB connection)
+psycopg2-binary>=2.9.10
+psycopg2>=2.9.10
+
 # LLM / AI
-# -----------------------------
 ollama>=0.5.3
 openai>=1.102.0
 
-# -----------------------------
 # Web / Frameworks
-# -----------------------------
 httpx>=0.28.1
 
-# -----------------------------
 # Core / Utilities
-# -----------------------------
 python-decouple>=3.8
 
-# -----------------------------
-# Database Drivers
-# -----------------------------
+# Optional database drivers (remove if not needed)
 mssql-django>=1.6
-psycopg2>=2.9.10
-psycopg2-binary>=2.9.10
 PyMySQL>=1.1.2
 pyodbc>=5.2.0
 redis>=6.4.0

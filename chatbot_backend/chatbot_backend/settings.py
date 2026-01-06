@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
-from decouple import config
 from pathlib import Path
 import os
 from dotenv import load_dotenv
@@ -31,7 +30,7 @@ SECRET_KEY = 'django-insecure-o0kzj!d%@jx6hwbu6unzm2$w-h0*2#%qk5*pzqg)x_stz=gyfs
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']  # For development. Restrict in production!
 
 
 # Application definition
@@ -96,11 +95,11 @@ WSGI_APPLICATION = 'chatbot_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('POSTGRES_DB'),
-        'USER': config('POSTGRES_USER'),
-        'PASSWORD': config('POSTGRES_PASSWORD'),
-        'HOST': config('POSTGRES_HOST'),
-        'PORT': config('POSTGRES_PORT', cast=int),
+        'NAME': os.getenv('POSTGRES_DB', 'chatbot_db'),
+        'USER': os.getenv('POSTGRES_USER', 'postgres'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
+        'HOST': os.getenv('POSTGRES_HOST', 'localhost'),
+        'PORT': os.getenv('POSTGRES_PORT', '5432'),
         'OPTIONS': {
             'options': '-c search_path=public',
         },

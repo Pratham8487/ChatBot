@@ -3,6 +3,8 @@ from rest_framework.parsers import BaseParser
 from rest_framework.exceptions import ParseError
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
+from django.db import transaction
+from django.core.exceptions import ValidationError
 import json
 import re
 import time
@@ -24,6 +26,7 @@ logger = logging.getLogger(__name__)
 
 @csrf_exempt
 @require_http_methods(["POST"])
+@transaction.atomic
 def chat_api(request):
     engine = request.GET.get("engine", "ollama").lower()
     logger.info(f"Engine selected: {engine}")
@@ -97,26 +100,41 @@ def chat_api(request):
 
         # STEP 8: Save/update lead
         lead = None
-        if lead_data.email:
-            lead, _ = Lead.objects.get_or_create(
-                email=lead_data.email,
-                defaults={"source": "website"}
-            )
-        elif lead_data.phone:
-            lead, _ = Lead.objects.get_or_create(
-                phone=lead_data.phone,
-                defaults={"source": "website"}
-            )
+        try:
+            if lead_data.email:
+                # Validate email format
+                lead, created = Lead.objects.get_or_create(
+                    email=lead_data.email,
+                    defaults={"source": "website"}
+                )
+                logger.info(f"Lead {'created' if created else 'retrieved'} with email: {lead_data.email}")
+                
+            elif lead_data.phone:
+                # Validate phone format
+                lead, created = Lead.objects.get_or_create(
+                    phone=lead_data.phone,
+                    defaults={"source": "website"}
+                )
+                logger.info(f"Lead {'created' if created else 'retrieved'} with phone: {lead_data.phone}")
+            else:
+                logger.warning("No email or phone provided for lead extraction")
 
-        if lead:
-            lead.name = lead_data.name or lead.name
-            lead.company = lead_data.company or lead.company
-            lead.problem = lead_data.problem or lead.problem
-            lead.intent_level = lead_data.intent_level or lead.intent_level
-            lead.qualified = qualified
-            lead.save()
+            if lead:
+                # Update lead information
+                lead.name = lead_data.name or lead.name
+                lead.company = lead_data.company or lead.company
+                lead.problem = lead_data.problem or lead.problem
+                lead.intent_level = lead_data.intent_level or lead.intent_level
+                lead.qualified = qualified
+                lead.save()
+                logger.info(f"Lead {lead.id} saved successfully")
 
-            conversation.lead = lead
+                conversation.lead = lead
+        except ValidationError as e:
+            logger.error(f"Validation error while saving lead: {e}")
+        except Exception as e:
+            logger.error(f"Error saving lead: {e}")
+            # Continue execution even if lead save fails
 
         # STEP 9: Update conversation stage
         conversation.stage = next_stage
