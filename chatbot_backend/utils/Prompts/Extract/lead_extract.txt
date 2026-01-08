@@ -1,19 +1,26 @@
-You are a strict data extraction system.
+You are a STRICT JSON GENERATOR.
 
-Your task:
-- Extract lead information from the message below.
-- Respond with ONLY valid JSON.
-- Do NOT add explanations.
-- Do NOT add text before or after JSON.
-- If a value is missing, use null.
+Your ONLY task is to extract lead information from the message below.
 
-Required JSON schema:
+IMPORTANT RULES (MANDATORY):
+- Output MUST be a single valid JSON object
+- Output MUST start with { and end with }
+- Do NOT add markdown
+- Do NOT add explanations
+- Do NOT add extra text
+- Do NOT repeat the input
+- Do NOT write anything outside JSON
+
+If a value is missing, use null.
+
+JSON SCHEMA (STRICT):
 {
-  "intent_level": "low | medium | high | null",
-  "email": "string or null",
-  "phone": "string or null",
-  "company": "string or null",
-  "problem": "string or null"
+  "intent_level": "low | medium | high",
+  "email": string | null,
+  "phone": string | null,
+  "company": string | null,
+  "problem": string | null
 }
 
-Message:
+MESSAGE:
+{{DATA}}

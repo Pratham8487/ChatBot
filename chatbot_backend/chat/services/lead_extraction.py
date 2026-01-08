@@ -68,7 +68,9 @@ def extract_lead_from_message(user_message: str, engine: str = "ollama") -> Lead
 
     if not extracted:
         logger.warning("Failed to parse lead extraction JSON. Returning empty LeadData.")
+        logger.error("[Lead Extraction] Extraction failed — invalid JSON from LLM")
         extracted = {}
+        return LeadData()
 
     # 🔹 Normalize intent_level (extra safety)
     intent_level = extracted.get("intent_level")
