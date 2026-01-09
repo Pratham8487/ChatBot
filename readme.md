@@ -130,14 +130,70 @@ ollama run phi3:mini
 #### Ollama runs locally and exposes an API at: http://localhost:11434
 The Django backend communicates with Ollama through this endpoint.
 
-# 🔐 Environment Variables
+## 🔐 Environment Variables (`.env`)
 
-#### Create a .env file if required (do NOT commit this file):
+This project uses environment variables to manage **AI providers, prompt paths, and configuration securely**.
 
-```bash
-DEBUG=True
+⚠️ **Do NOT commit this file to GitHub**
+
+---
+
+### 📁 Where to Create the `.env` File
+
+Create the `.env` file inside the **`chatbot_backend/`** directory:
+
+```text
+ChatBot/
+├── chatbot_backend/
+│   ├── chatbot_backend/
+│   ├── chat/
+│   ├── manage.py
+│   ├── .env   ← CREATE HERE
+├── chatbot-frontend/
+└── README.md
 ```
-.env files are excluded using .gitignore for security reasons.
+
+
+#### 🧠 AI / LLM Configuration (Example)
+```text
+# ===============================
+# Django Settings
+# ===============================
+DEBUG=True
+
+# ===============================
+# AI / LLM Configuration
+# ===============================
+
+# Ollama local API endpoint
+OLLAMA_URL=http://localhost:11434/api/generate
+
+# Default local model
+LLM_MODEL_NAME=your_model_name (recommendation: phi3:mini)
+
+# Base URLs for LLM APIs
+LLM_LOCAL_API_BASE=http://localhost:11434
+LLM_API_BASE_URL=http://localhost:11434
+
+# OpenAI (optional)
+LLM_MODEL_OPEN_AI=gpt-4
+OPENAI_API_KEY=your-openai-api-key-here
+
+# Prompt templates directory
+PROMPTS_DIR=utils/Prompts
+
+# ===============================
+# Database Configuration
+# ===============================
+
+POSTGRES_DB=your_database_name
+POSTGRES_USER=your_database_user
+POSTGRES_PASSWORD=your_database_password
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+```
+
+
 
 ## 🚀 How to Run the Project
 - Start Ollama
