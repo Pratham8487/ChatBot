@@ -259,76 +259,6 @@ def generate_with_ollama(data: str, prompt: str) -> tuple[str, float]:
     duration = round(time.time() - start, 2)
     return result.strip(), duration
 
-
-def generate_with_openai(data: str, prompt: str, model: str, fallback_model: str = "gpt-3.5-turbo") -> tuple[str, float]:
-    """
-    Generate summary using OpenAI's chat.completions API with robust retry, jitter, and optional model fallback.
-    """
-    logger.info("Generating summary using OpenAI...")
-
-    api_key = getattr(settings, "OPENAI_API_KEY", None)
-    if not api_key:
-        raise ValueError("OPENAI_API_KEY not found in settings")
-
-    client = OpenAI(api_key=api_key)
-    logger.info("OpenAI API key loaded successfully.")
-
-    start = time.time()
-    max_retries = 5
-    current_model = model
-
-    for attempt in range(max_retries):
-        try:
-            response = client.chat.completions.create(
-                model=current_model,
-                messages=[
-                    {"role": "system", "content": prompt},
-                    {"role": "user", "content": data}
-                ],
-            )
-
-            duration = round(time.time() - start, 2)
-            logger.info(f"OpenAI generation completed in {duration}s with model {current_model}.")
-
-            content = (
-                response.choices[0].message.content
-                if getattr(response, "choices", None)
-                and len(response.choices) > 0
-                and getattr(response.choices[0], "message", None)
-                else ""
-            )
-            return content or "", duration
-
-        except RateLimitError as e:
-            wait_time = min(2 ** attempt + random.uniform(0.5, 1.5), 30)
-            logger.warning(f"Rate limit hit on attempt {attempt + 1} with model {current_model}. Retrying in {wait_time:.1f}s...")
-            time.sleep(wait_time)
-
-        except APIStatusError as e:
-            if e.status_code == 429:  # rate limit
-                wait_time = min(2 ** attempt + random.uniform(0.5, 1.5), 30)
-                logger.warning(f"HTTP {e.status_code} error on attempt {attempt + 1}. Retrying in {wait_time:.1f}s...")
-                time.sleep(wait_time)
-                continue
-            raise
-
-        except APIConnectionError as e:
-            wait_time = min(2 ** attempt + random.uniform(0.5, 1.5), 30)
-            logger.warning(f"Connection error on attempt {attempt + 1}: {e}. Retrying in {wait_time:.1f}s...")
-            time.sleep(wait_time)
-
-        except Exception as e:
-            logger.exception(f"Unexpected error during OpenAI generation: {e}")
-            break
-
-
-    # All retries failed
-    duration = round(time.time() - start, 2)
-    logger.error("OpenAI generation failed after multiple retries.")
-    return "", duration
-
-
-
 def generate_with_lmstudio(data: str, prompt: str, model: str) -> tuple[str, float]:
     """Generate summary using LM Studio API (local LLM server)."""
     logger.info(INFO_MESSAGES["LMSTUDIO_GENERATING"])
@@ -358,27 +288,61 @@ def generate_with_lmstudio(data: str, prompt: str, model: str) -> tuple[str, flo
         raise RuntimeError(f"{ERROR_MESSAGES['LMSTUDIO_FAILURE']}: {str(e)}")
 
 
-    # """Prepare data for final compilation"""
-    # compilation_parts = [
-    #     "=== PR REVIEW COMPILATION ===\n",
-    #     f"Total files processed: {len(all_files)}\n",
-    #     f"Total batches: {len(batch_summaries)}\n\n"
-    # ]
-    
-    # for batch in batch_summaries:
-    #     compilation_parts.append(
-    #         f"BATCH {batch['batch_number']} ({batch['files_count']} files):\n"
-    #         f"Files: {', '.join(batch['files_paths'])}\n"
-    #         f"Summary: {batch['summary']}\n\n"
-    #     )
-    
-    # compilation_parts.append(
-    #     "\n=== INSTRUCTIONS ===\n"
-    #     "Please provide a comprehensive PR review summary that:\n"
-    #     "1. Identifies the main purpose and scope of changes\n"
-    #     "2. Highlights key technical decisions\n"
-    #     "3. Notes any potential concerns or improvements\n"
-    #     "4. Summarizes the overall impact"
-    # )
-    
-    # return "".join(compilation_parts)
+def generate_with_openai(
+    user_input: str,
+    system_prompt: str = "You are a helpful assistant.",
+    model: str | None = None,
+    temperature: float = 0.2,
+) -> tuple[str, float]:
+    """
+    Simple OpenAI text generation helper.
+    Returns a tuple of (response_text, duration_in_seconds)
+    """
+
+    api_key = getattr(settings, "OPENAI_API_KEY", None)
+    if not api_key:
+        raise ValueError("OPENAI_API_KEY not configured")
+
+    resolved_model: str = model if model is not None else getattr(
+        settings, "OPENAI_MODEL", "gpt-4o-mini"
+    )
+
+    client = OpenAI(api_key=api_key)
+    start = time.time()
+
+    try:
+        response = client.chat.completions.create(
+            model=resolved_model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_input},
+            ],
+            temperature=temperature,
+        )
+
+        content = response.choices[0].message.content or ""
+        duration = round(time.time() - start, 2)
+
+        logger.info(
+            "[OpenAI] Response generated in %ss using %s",
+            duration,
+            resolved_model,
+        )
+
+        return content.strip(), duration
+
+    except RateLimitError:
+        logger.error("[OpenAI] Rate limit exceeded")
+        raise
+
+    except APIConnectionError:
+        logger.error("[OpenAI] Connection error")
+        raise
+
+    except APIStatusError as e:
+        logger.error("[OpenAI] API error %s", e.status_code)
+        raise
+
+    except Exception:
+        logger.exception("[OpenAI] Unexpected error")
+        raise

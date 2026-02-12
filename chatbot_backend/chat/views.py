@@ -94,8 +94,12 @@ def chat_api(request):
             content=bot_response
         )
 
-        # STEP 7: Lead extraction
-        lead_data = extract_lead_from_message(user_message, engine)
+        # STEP 7: Lead extraction (with conversation stage context)
+        lead_data = extract_lead_from_message(
+            user_message=user_message, 
+            engine=engine,
+            conversation_stage=next_stage
+        )
         qualified = lead_data.is_qualified()
 
         # STEP 8: Save/update lead

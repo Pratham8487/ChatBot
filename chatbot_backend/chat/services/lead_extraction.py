@@ -42,14 +42,55 @@ def _safe_json_extract(text: str) -> dict | None:
         return None
 
 
-def extract_lead_from_message(user_message: str, engine: str = "ollama") -> LeadData:
+def _infer_intent_from_stage(stage: str, extracted_intent: str | None) -> str | None:
+    """
+    Infer intent_level based on conversation stage if not explicitly extracted.
+    
+    Stage progression = increasing user intent:
+    - greeting: low intent (just starting conversation)
+    - discovery: low-medium intent (understanding problems)
+    - qualification: medium intent (evaluating benefits)
+    - contact: medium-high intent (ready for next steps, providing contact)
+    - closing: high intent (scheduling, confirming details, ready to proceed)
+    
+    This follows real-world sales funnel behavior where stage progression itself
+    indicates growing commitment.
+    """
+    # If LLM explicitly extracted an intent, use that first
+    if extracted_intent in {"low", "medium", "high"}:
+        return extracted_intent
+    
+    # Otherwise, infer from stage (stage progression = commitment)
+    stage_intent_map = {
+        "greeting": "low",
+        "discovery": "low",
+        "qualification": "medium",
+        "contact": "medium",
+        "closing": "high"
+    }
+    
+    inferred = stage_intent_map.get(stage.lower(), None)
+    logger.info(f"[Lead Extraction] Inferred intent_level='{inferred}' from stage='{stage}' (extracted: {extracted_intent})")
+    
+    return inferred
+
+
+def extract_lead_from_message(
+    user_message: str, 
+    engine: str = "ollama",
+    conversation_stage: str | None = None
+) -> LeadData:
     """
     Uses LLM to extract structured lead data from a user message.
+    
+    Also infers intent_level from conversation stage if not explicitly detected.
+    This provides context-aware lead qualification that matches real-world sales funnel behavior.
 
     This function is hardened against:
     - Non-JSON LLM output
     - Extra text before/after JSON
     - Partial or missing fields
+    - Missing intent_level (inferred from stage)
     """
 
     # 🔹 Call LLM extraction prompt
@@ -70,10 +111,12 @@ def extract_lead_from_message(user_message: str, engine: str = "ollama") -> Lead
         logger.warning("Failed to parse lead extraction JSON. Returning empty LeadData.")
         extracted = {}
 
-    # 🔹 Normalize intent_level (extra safety)
-    intent_level = extracted.get("intent_level")
-    if intent_level not in {"low", "medium", "high"}:
-        intent_level = None
+    # 🔹 Normalize intent_level with stage-based inference
+    extracted_intent = extracted.get("intent_level")
+    intent_level = _infer_intent_from_stage(
+        conversation_stage or "greeting",
+        extracted_intent
+    )
 
     return LeadData(
         name=extracted.get("name"),
