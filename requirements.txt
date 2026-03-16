@@ -18,6 +18,13 @@ psycopg2>=2.9.10
 ollama>=0.5.3
 openai>=1.102.0
 
+# LangChain Agent Framework
+langchain>=0.3.0
+langchain-core>=0.3.0
+langchain-openai>=0.3.0
+langchain-ollama>=0.3.0
+langgraph>=0.3.0
+
 # Web / Frameworks
 httpx>=0.28.1
 
