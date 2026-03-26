@@ -1,7 +1,13 @@
 # AI Chatbot Assistant (Django + React)
 
-A full-stack AI chatbot application built with **Django (REST API)** and **React (Vite + TypeScript)**.  
+A full-stack AI chatbot application built with **Django (REST API)** and **React (Vite + TypeScript)**.
 The backend handles AI requests securely, while the frontend provides a modern chat UI suitable for website integration.
+
+---
+
+## 📸 Demo
+
+![Chatbot Demo](./image.png)
 
 ---
 
